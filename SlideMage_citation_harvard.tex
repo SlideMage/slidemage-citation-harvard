@@ -1,0 +1,62 @@
+﻿% SPDX-FileCopyrightText: 2026 Stefan Palan
+% SPDX-License-Identifier: LPPL-1.3c+
+% SlideMage citation format "harvard": Harvard author-date citations and reference list, in the form of
+% "Cite Them Right" (Pears and Shields), the most widely used Harvard guide: (Fama et al., 1993) in the text,
+% "Fama, E.F. (1993) 'Title', Journal, 33(1), pp. 3-56." in the list. There is no single official Harvard
+% style; this one is biblatex's standard authoryear style, set to those conventions.
+%
+% Choose it in a template (between \input{SlideMage_setup} and \input{SlideMage_base}) or in a deck (before
+% \SMUseBibliography):
+%     \renewcommand{\SMCitationFormat}{harvard}
+\makeatletter
+% Beamer patches biblatex's bibliography so that its first block gets the font and colour "bibliography entry
+% author", the second "title" (bold in the SlideMage theme) and the third and fourth "location" and "note"
+% (grey). In a Harvard list those looks land on the wrong parts, so all four are set to the author's look; the
+% italics Harvard wants (book and journal titles) come from biblatex itself. All four are body size; a
+% \fullcite in a footnote shrinks them again through SlideMage's footnote template.
+\newcommand{\SM@harBibLook}[1]{%
+	\setbeamercolor*{bibliography entry #1}{parent=bibliography entry author}%
+	\setbeamerfont{bibliography entry #1}{series=\mdseries, shape=\upshape, size=\normalsize}}
+\newcommand{\SMharBibLooksHook}{%
+	\setbeamerfont{bibliography entry author}{series=\mdseries, shape=\upshape, size=\normalsize}%
+	\SM@harBibLook{title}\SM@harBibLook{location}\SM@harBibLook{note}}
+\makeatother
+\renewcommand{\SMBiblatexOptions}{style=authoryear, backend=biber, giveninits=true, uniquename=init,
+	maxcitenames=3, mincitenames=1, maxbibnames=3, minbibnames=1, dashed=false, doi=true, isbn=false, url=true, urldate=long, dateabbrev=false}
+\renewcommand{\SMBibliographyStyle}{%
+	% Names: "Fama, E.F., French, K.R. and Ross, S.A." in the list, "Fama et al." in the text.
+	\DeclareNameAlias{sortname}{family-given}%
+	\DeclareNameAlias{author}{family-given}%
+	\renewcommand*{\bibinitdelim}{}%
+	\renewcommand*{\bibinithyphendelim}{-}%
+	\renewcommand*{\multinamedelim}{\addcomma\space}%
+	\renewcommand*{\finalnamedelim}{\space\bibstring{and}\space}%
+	% In the text: (Fama et al., 1993), (Markowitz, 1952), and narrative Kahneman (2011).
+	\DeclareDelimFormat{nameyeardelim}{\addcomma\space}%
+	\DeclareDelimFormat[textcite]{nameyeardelim}{\addspace}%
+	\DeclareDelimFormat[bib,biblist]{nameyeardelim}{\addspace}%
+	% Titles: 'single quotes' for articles, chapters and web pages; no quotes (italic) for books and reports.
+	\DeclareFieldFormat[article,incollection,inproceedings]{title}{\textquoteleft #1\textquoteright}%
+	\DeclareFieldFormat[online]{title}{\mkbibemph{#1}}%
+	% No punctuation between the year and the title: "Fama, E.F. (1993) 'Title', Journal, ...".
+	\DeclareDelimFormat{nametitledelim}{\addspace}%
+	\renewcommand*{\intitlepunct}{\addspace}%
+	% Web pages: "OECD (2023) Title. Available at: URL (Accessed: March 2, 2026)."
+	\DefineBibliographyStrings{english}{urlseen={Accessed:}}%
+	\DeclareFieldFormat{url}{Available at:\addnbspace\url{#1}}%
+	\DeclareFieldFormat{doi}{\ifhyperref{\href{https://doi.org/#1}{doi:#1}}{doi:#1}}%
+	\DeclareFieldFormat{pages}{pp.\addnbspace #1}%
+	\DeclareFieldFormat{isbn}{#1}%
+	% Articles read "Journal, 33(1), pp. 3-56." (commas, volume(issue)).
+	\AtEveryBibitem{%
+		\ifboolexpr{test {\ifentrytype{article}} or test {\ifentrytype{incollection}}}%
+			{\renewcommand*{\newunitpunct}{\addcomma\space}}{}}%
+	\renewbibmacro*{volume+number+eid}{%
+		\printfield{volume}%
+		\iffieldundef{number}{}{(\printfield{number})}%
+		\setunit{\addcomma\space}%
+		\printfield{eid}}%
+	\AtBeginDocument{\SMharBibLooksHook}%
+}
+
+

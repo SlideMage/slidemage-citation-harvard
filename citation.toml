@@ -1,0 +1,9 @@
+# The SlideMage citation format package "harvard" (docs/CITATION_PACKAGE.md in SlideMage).
+id = "harvard"
+name = "Harvard"
+version = "1.0.0"
+requires_slidemage = ">=0.13.0"
+summary = "Harvard author-date citations and reference list in the form of Cite Them Right, on biblatex's authoryear style."
+author = "Stefan Palan"
+homepage = "https://github.com/SlideMage/slidemage-citation-harvard"
+license = "LPPL-1.3c-or-later"
